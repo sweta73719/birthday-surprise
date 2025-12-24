@@ -20,6 +20,7 @@
             color: #555;
             overflow-x: hidden;
             padding: 20px;
+            transition: background 0.5s ease;
         }
         
         .container {
@@ -70,11 +71,27 @@
             animation: float 3s ease-in-out infinite;
         }
         
-        .messages-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
+        /* Page layout */
+        .page {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .page.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .page-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            text-align: center;
         }
         
         .message-box {
@@ -90,8 +107,9 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
             border: 2px solid rgba(255, 255, 255, 0.5);
         }
         
@@ -119,35 +137,33 @@
         }
         
         .message-box:hover {
-            transform: translateY(-10px) scale(1.02);
+            transform: translateY(-5px) scale(1.02);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
         }
         
-        .message-box.expanded {
-            grid-column: span 2;
-            transform: translateY(0) scale(1.05);
-            z-index: 10;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            min-height: 250px;
+        .message-box.revealed {
+            cursor: default;
         }
         
-        .message-box.expanded .message-content {
-            font-size: 1.4rem;
+        .message-box.revealed .message-content {
+            opacity: 1;
+            transform: translateY(0);
         }
         
-        .message-box.expanded .emoji-accent {
-            transform: scale(1.5);
-            opacity: 0.8;
+        .message-box.revealed .tap-hint {
+            opacity: 0;
         }
         
         .message-content {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             line-height: 1.6;
             color: #444;
             font-weight: 500;
             position: relative;
             z-index: 2;
-            transition: all 0.3s ease;
+            transition: all 0.5s ease 0.2s;
+            opacity: 0;
+            transform: translateY(20px);
         }
         
         .emoji-accent {
@@ -167,20 +183,121 @@
             position: absolute;
             bottom: 10px;
             right: 15px;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
             display: flex;
             align-items: center;
             gap: 5px;
             z-index: 3;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: opacity 0.3s ease;
         }
         
         .tap-hint i {
-            font-size: 0.9rem;
+            font-size: 1rem;
+            animation: bounce 1.5s infinite;
         }
         
-        .message-box.expanded .tap-hint {
-            opacity: 0;
+        .page-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .nav-btn {
+            background: linear-gradient(to right, #ff66a3, #9966ff);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(153, 102, 255, 0.3);
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(153, 102, 255, 0.4);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .nav-btn:disabled:hover {
+            transform: none;
+            box-shadow: 0 5px 15px rgba(153, 102, 255, 0.3);
+        }
+        
+        .page-indicator {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .page-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(153, 102, 204, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .page-dot.active {
+            background: #9966cc;
+            transform: scale(1.2);
+        }
+        
+        /* Special final page */
+        .final-message-box {
+            background: linear-gradient(135deg, #ffd6e7, #ffb8d9);
+            border-radius: 30px;
+            padding: 40px 35px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+            border: 3px solid rgba(255, 255, 255, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .final-message-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(to right, #ff66a3, #9966ff, #66a3ff);
+        }
+        
+        .final-message {
+            font-size: 1.8rem;
+            line-height: 1.8;
+            color: #444;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 20px;
+        }
+        
+        .final-emoji {
+            font-size: 3rem;
+            margin: 20px 0;
+            animation: pulse 2s infinite;
         }
         
         .floating-hearts {
@@ -212,13 +329,9 @@
         
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .messages-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .message-box.expanded {
-                grid-column: span 1;
+            .message-box {
+                max-width: 90%;
+                padding: 25px 20px;
             }
             
             h1 {
@@ -226,11 +339,15 @@
             }
             
             .message-content {
-                font-size: 1.1rem;
+                font-size: 1.2rem;
             }
             
-            .message-box.expanded .message-content {
-                font-size: 1.2rem;
+            .final-message {
+                font-size: 1.5rem;
+            }
+            
+            .final-emoji {
+                font-size: 2.5rem;
             }
         }
         
@@ -240,12 +357,21 @@
             }
             
             .message-box {
-                padding: 25px 20px;
                 min-height: 160px;
+                padding: 20px 15px;
             }
             
             h1 {
                 font-size: 1.8rem;
+            }
+            
+            .nav-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .final-message {
+                font-size: 1.3rem;
             }
         }
         
@@ -302,6 +428,16 @@
             }
         }
         
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
         /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 10px;
@@ -329,7 +465,7 @@
     <div class="container">
         <header>
             <h1>Messages Just For You <span class="emoji-decoration">💝</span></h1>
-            <p class="subtitle">Tap each box to reveal a special message</p>
+            <p class="subtitle">Each page holds a special message just for you</p>
             <div style="margin-top: 20px;">
                 <span class="emoji-decoration">🌸</span>
                 <span class="emoji-decoration">✨</span>
@@ -341,82 +477,115 @@
         </header>
         
         <main>
-            <div class="messages-grid" id="messagesGrid">
-                <!-- Box 1 -->
-                <div class="message-box" style="--color1: #ffd6e7; --color2: #ffb8d9; --icon: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23ff66a3\"><path d=\"M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z\"/></svg>')">
-                    <div class="emoji-accent">💖</div>
-                    <div class="emoji-accent">✨</div>
-                    <div class="message-content">
-                        Your smile has a way of making everything feel right in the world.
+            <!-- Page 1 -->
+            <div class="page active" id="page1">
+                <div class="page-content">
+                    <div class="message-box" style="--color1: #ffd6e7; --color2: #ffb8d9; --icon: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23ff66a3\"><path d=\"M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z\"/></svg>')">
+                        <div class="emoji-accent">💖</div>
+                        <div class="emoji-accent">✨</div>
+                        <div class="message-content">
+                            Your smile has a way of making everything feel right in the world.
+                        </div>
+                        <div class="tap-hint"><i class="fas fa-hand-pointer"></i> Tap to reveal</div>
                     </div>
-                    <div class="tap-hint"><i class="fas fa-hand-point-up"></i> Tap to expand</div>
-                </div>
-                
-                <!-- Box 2 -->
-                <div class="message-box" style="--color1: #d6eaff; --color2: #b8d9ff; --icon: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%2366a3ff\"><path d=\"M12 2L2 12l10 10 10-10L12 2zm0 2.83L19.17 12 12 19.17 4.83 12 12 4.83z\"/></svg>')">
-                    <div class="emoji-accent">🌟</div>
-                    <div class="emoji-accent">💫</div>
-                    <div class="message-content">
-                        I cherish every moment we spend together, no matter how ordinary it seems.
+                    
+                    <div class="page-navigation">
+                        <button class="nav-btn" id="prevBtn1" disabled>
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </button>
+                        <button class="nav-btn" id="nextBtn1">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
                     </div>
-                    <div class="tap-hint"><i class="fas fa-hand-point-up"></i> Tap to expand</div>
                 </div>
-                
-                <!-- Box 3 -->
-                <div class="message-box" style="--color1: #e6ffd6; --color2: #c9ffb8; --icon: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%2366cc66\"><path d=\"M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z\"/></svg>')">
-                    <div class="emoji-accent">🌸</div>
-                    <div class="emoji-accent">🌺</div>
-                    <div class="message-content">
-                        You have the most beautiful heart I've ever known.
+            </div>
+            
+            <!-- Page 2 -->
+            <div class="page" id="page2">
+                <div class="page-content">
+                    <div class="message-box" style="--color1: #d6eaff; --color2: #b8d9ff; --icon: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%2366a3ff\"><path d=\"M12 2L2 12l10 10 10-10L12 2zm0 2.83L19.17 12 12 19.17 4.83 12 12 4.83z\"/></svg>')">
+                        <div class="emoji-accent">🌟</div>
+                        <div class="emoji-accent">💫</div>
+                        <div class="message-content">
+                            I cherish every moment we spend together, no matter how ordinary it seems.
+                        </div>
+                        <div class="tap-hint"><i class="fas fa-hand-pointer"></i> Tap to reveal</div>
                     </div>
-                    <div class="tap-hint"><i class="fas fa-hand-point-up"></i> Tap to expand</div>
-                </div>
-                
-                <!-- Box 4 -->
-                <div class="message-box" style="--color1: #fff2d6; --color2: #ffe7b8; --icon: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23ffcc66\"><path d=\"M12 22c5.514 0 10-4.486 10-10S17.514 2 12 2 2 6.486 2 12s4.486 10 10 10zm0-18c4.411 0 8 3.589 8 8s-3.589 8-8 8-8-3.589-8-8 3.589-8 8-8z\"/><circle cx=\"12\" cy=\"12\" r=\"5\"/></svg>')">
-                    <div class="emoji-accent">🌼</div>
-                    <div class="emoji-accent">🌻</div>
-                    <div class="message-content">
-                        Just thinking about you makes my day brighter.
+                    
+                    <div class="page-navigation">
+                        <button class="nav-btn" id="prevBtn2">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </button>
+                        <button class="nav-btn" id="nextBtn2">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
                     </div>
-                    <div class="tap-hint"><i class="fas fa-hand-point-up"></i> Tap to expand</div>
                 </div>
-                
-                <!-- Box 5 -->
-                <div class="message-box" style="--color1: #f0d6ff; --color2: #e2b8ff; --icon: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23cc66ff\"><path d=\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z\"/></svg>')">
-                    <div class="emoji-accent">💕</div>
-                    <div class="emoji-accent">💞</div>
-                    <div class="message-content">
-                        I'm so grateful for your presence in my life.
+            </div>
+            
+            <!-- Page 3 -->
+            <div class="page" id="page3">
+                <div class="page-content">
+                    <div class="message-box" style="--color1: #e6ffd6; --color2: #c9ffb8; --icon: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%2366cc66\"><path d=\"M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z\"/></svg>')">
+                        <div class="emoji-accent">🌸</div>
+                        <div class="emoji-accent">🌺</div>
+                        <div class="message-content">
+                            You have the most beautiful heart I've ever known.
+                        </div>
+                        <div class="tap-hint"><i class="fas fa-hand-pointer"></i> Tap to reveal</div>
                     </div>
-                    <div class="tap-hint"><i class="fas fa-hand-point-up"></i> Tap to expand</div>
-                </div>
-                
-                <!-- Box 6 -->
-                <div class="message-box" style="--color1: #d6f9ff; --color2: #b8f2ff; --icon: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%2366ccff\"><path d=\"M14 10H2v2h12v-2zm0-4H2v2h12V6zM2 16h8v-2H2v2zm19.5-4.5L23 13l-6.99 7-4.51-4.5L13 14l3.01 3 5.49-5.5z\"/></svg>')">
-                    <div class="emoji-accent">💓</div>
-                    <div class="emoji-accent">💗</div>
-                    <div class="message-content">
-                        You inspire me to be a better person every single day.
+                    
+                    <div class="page-navigation">
+                        <button class="nav-btn" id="prevBtn3">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </button>
+                        <button class="nav-btn" id="nextBtn3">
+                            Next <i class="fas fa-arrow-right"></i>
+                        </button>
                     </div>
-                    <div class="tap-hint"><i class="fas fa-hand-point-up"></i> Tap to expand</div>
                 </div>
-                
-                <!-- Box 7 -->
-                <div class="message-box" style="--color1: #ffd6cc; --color2: #ffb8a8; --icon: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%23ff9966\"><path d=\"M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z\"/></svg>')">
-                    <div class="emoji-accent">💘</div>
-                    <div class="emoji-accent">💝</div>
-                    <div class="message-content">
-                        My love for you grows stronger with each passing day.
+            </div>
+            
+            <!-- Page 4 - Final Special Message -->
+            <div class="page" id="page4">
+                <div class="page-content">
+                    <div class="final-message-box">
+                        <div class="final-emoji">💝</div>
+                        <div class="final-message">
+                            From the moment we met, you've brought so much joy and light into my life. 
+                            Every day with you feels like a beautiful adventure, and I'm so grateful 
+                            for every laugh, every conversation, and every moment we share. 
+                            You are truly special, and I cherish you more than words can express.
+                        </div>
+                        <div class="final-emoji">💖</div>
+                        <div style="font-size: 1.3rem; color: #9966cc; margin-top: 20px;">
+                            Forever grateful for you
+                        </div>
                     </div>
-                    <div class="tap-hint"><i class="fas fa-hand-point-up"></i> Tap to expand</div>
+                    
+                    <div class="page-navigation">
+                        <button class="nav-btn" id="prevBtn4">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </button>
+                        <button class="nav-btn" id="restartBtn">
+                            <i class="fas fa-redo"></i> Start Over
+                        </button>
+                    </div>
                 </div>
+            </div>
+            
+            <!-- Page indicator dots -->
+            <div class="page-indicator">
+                <div class="page-dot active" data-page="1"></div>
+                <div class="page-dot" data-page="2"></div>
+                <div class="page-dot" data-page="3"></div>
+                <div class="page-dot" data-page="4"></div>
             </div>
         </main>
         
         <footer>
             <p>Made with <i class="fas fa-heart" style="color: #ff66a3;"></i> just for you</p>
-            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.7;">Each box holds a piece of my heart</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.7;">Each page holds a piece of my heart</p>
         </footer>
     </div>
 
@@ -453,71 +622,111 @@
             }
         }
         
-        // Staggered animation for message boxes
-        function animateMessageBoxes() {
-            const boxes = document.querySelectorAll('.message-box');
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            createFloatingHearts();
             
-            boxes.forEach((box, index) => {
-                // Stagger the animation
-                setTimeout(() => {
-                    box.style.animation = `popIn 0.6s ease forwards`;
-                    box.style.opacity = '1';
-                    box.style.transform = 'translateY(0) scale(1)';
-                }, index * 150);
+            // Set up navigation
+            setupNavigation();
+            
+            // Set up message box interactions
+            setupMessageBoxes();
+            
+            // Preload the audio
+            const tapSound = document.getElementById('tapSound');
+            tapSound.load();
+            
+            // Enable audio on first user interaction
+            document.addEventListener('click', function enableAudio() {
+                tapSound.play().then(() => {
+                    tapSound.pause();
+                    tapSound.currentTime = 0;
+                }).catch(e => {});
+                document.removeEventListener('click', enableAudio);
             });
+        });
+        
+        // Set up navigation between pages
+        function setupNavigation() {
+            const pages = document.querySelectorAll('.page');
+            const pageDots = document.querySelectorAll('.page-dot');
+            let currentPage = 1;
+            
+            // Navigation button event listeners
+            document.getElementById('nextBtn1').addEventListener('click', () => navigateTo(2));
+            document.getElementById('prevBtn2').addEventListener('click', () => navigateTo(1));
+            document.getElementById('nextBtn2').addEventListener('click', () => navigateTo(3));
+            document.getElementById('prevBtn3').addEventListener('click', () => navigateTo(2));
+            document.getElementById('nextBtn3').addEventListener('click', () => navigateTo(4));
+            document.getElementById('prevBtn4').addEventListener('click', () => navigateTo(3));
+            document.getElementById('restartBtn').addEventListener('click', () => navigateTo(1));
+            
+            // Page dot event listeners
+            pageDots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const pageNum = parseInt(this.getAttribute('data-page'));
+                    if (pageNum !== currentPage) {
+                        navigateTo(pageNum);
+                    }
+                });
+            });
+            
+            function navigateTo(pageNum) {
+                // Hide current page
+                pages[currentPage - 1].classList.remove('active');
+                pageDots[currentPage - 1].classList.remove('active');
+                
+                // Show new page
+                pages[pageNum - 1].classList.add('active');
+                pageDots[pageNum - 1].classList.add('active');
+                
+                // Update current page
+                currentPage = pageNum;
+                
+                // Play navigation sound if available
+                const tapSound = document.getElementById('tapSound');
+                tapSound.currentTime = 0;
+                tapSound.play().catch(e => console.log("Audio play failed"));
+                
+                // Add subtle vibration effect on mobile
+                if (navigator.vibrate) {
+                    navigator.vibrate(20);
+                }
+                
+                // Scroll to top of page
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Create sparkle effect
+                createSparkleEffect(document.querySelector('.page.active .page-content'));
+            }
         }
         
-        // Handle box click/tap
-        function setupBoxInteractions() {
-            const boxes = document.querySelectorAll('.message-box');
+        // Set up message box interactions
+        function setupMessageBoxes() {
+            const messageBoxes = document.querySelectorAll('.message-box');
             const tapSound = document.getElementById('tapSound');
-            let currentlyExpanded = null;
             
-            boxes.forEach(box => {
+            messageBoxes.forEach(box => {
                 box.addEventListener('click', function() {
-                    // Play tap sound if available
+                    // If already revealed, do nothing
+                    if (this.classList.contains('revealed')) return;
+                    
+                    // Mark as revealed
+                    this.classList.add('revealed');
+                    
+                    // Play tap sound
                     if (tapSound) {
                         tapSound.currentTime = 0;
-                        tapSound.play().catch(e => console.log("Audio play failed (user interaction required first)"));
+                        tapSound.play().catch(e => console.log("Audio play failed"));
                     }
                     
-                    // If this box is already expanded, collapse it
-                    if (this.classList.contains('expanded')) {
-                        this.classList.remove('expanded');
-                        currentlyExpanded = null;
-                        return;
-                    }
-                    
-                    // Collapse previously expanded box if any
-                    if (currentlyExpanded && currentlyExpanded !== this) {
-                        currentlyExpanded.classList.remove('expanded');
-                    }
-                    
-                    // Expand this box
-                    this.classList.add('expanded');
-                    currentlyExpanded = this;
-                    
-                    // Scroll the expanded box into view if needed
-                    setTimeout(() => {
-                        this.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }, 300);
-                    
-                    // Add a subtle vibration effect on mobile
+                    // Add subtle vibration effect on mobile
                     if (navigator.vibrate) {
                         navigator.vibrate(30);
                     }
                     
                     // Create sparkle effect
                     createSparkleEffect(this);
-                });
-                
-                // Add touch-specific handling for mobile
-                box.addEventListener('touchstart', function() {
-                    this.style.transform = 'scale(0.98)';
-                });
-                
-                box.addEventListener('touchend', function() {
-                    this.style.transform = 'scale(1)';
                 });
             });
         }
@@ -527,7 +736,7 @@
             const rect = element.getBoundingClientRect();
             const sparkles = ['✨', '🌟', '💫', '⭐', '🌠'];
             
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 6; i++) {
                 const sparkle = document.createElement('div');
                 sparkle.className = 'floating-heart';
                 sparkle.innerHTML = sparkles[Math.floor(Math.random() * sparkles.length)];
@@ -543,8 +752,8 @@
                 
                 // Random movement for sparkle
                 const angle = Math.random() * Math.PI * 2;
-                const distance = 50 + Math.random() * 80;
-                const duration = 0.8 + Math.random() * 0.5;
+                const distance = 40 + Math.random() * 60;
+                const duration = 0.6 + Math.random() * 0.5;
                 
                 const startX = rect.left + Math.random() * rect.width;
                 const startY = rect.top + Math.random() * rect.height;
@@ -572,29 +781,6 @@
                 }, duration * 1000);
             }
         }
-        
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', function() {
-            createFloatingHearts();
-            animateMessageBoxes();
-            setupBoxInteractions();
-            
-            // Add smooth scrolling behavior
-            document.documentElement.style.scrollBehavior = 'smooth';
-            
-            // Preload the audio to ensure it plays immediately when needed
-            const tapSound = document.getElementById('tapSound');
-            tapSound.load();
-            
-            // Enable audio on first user interaction
-            document.addEventListener('click', function enableAudio() {
-                tapSound.play().then(() => {
-                    tapSound.pause();
-                    tapSound.currentTime = 0;
-                }).catch(e => {});
-                document.removeEventListener('click', enableAudio);
-            });
-        });
     </script>
 </body>
 </html>
